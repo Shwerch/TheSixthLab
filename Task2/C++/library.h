@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cstdio>
 #include <ctime>
 #include <fstream>
 #include <iomanip>
@@ -9,8 +10,6 @@
 #include <random>
 #include <string>
 #include <vector>
-
-#define FILE_NAME "aes_key.bin"
 
 // Таблица S-блока для AES
 extern const uint8_t sBox[256];

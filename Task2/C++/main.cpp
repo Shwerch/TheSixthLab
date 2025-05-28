@@ -1,5 +1,4 @@
 #include "library.h"
-#include <cstdio>
 
 int main() {
 	std::srand(
@@ -9,6 +8,7 @@ int main() {
 	std::cout << "Введите текст для шифрования (кратный 16 символам): " << std::endl;
 	std::getline(std::cin, inputText);
 	size_t length = inputText.length();
+	std::cout << "LENGTH! " << length << std::endl;
 	if (static_cast<int>(length) % 16 != 0)
 		inputText.append(length, '\0');
 
