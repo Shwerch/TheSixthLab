@@ -25,6 +25,12 @@ struct State {
 	uint8_t matrix[4][4];
 };
 
+// Добавление PKCS#7 отступа к байтам
+std::vector<uint8_t> addPkcs7Padding(const std::vector<uint8_t> &data);
+
+// Удаление PKCS#7 отступа из байтов
+std::vector<uint8_t> removePkcs7Padding(const std::vector<uint8_t> &paddedData);
+
 // Вычисляет R_con для заданного раунда
 uint8_t getRcon(uint8_t round);
 

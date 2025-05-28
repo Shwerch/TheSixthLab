@@ -76,6 +76,47 @@ const uint8_t gf28MulXInv[256] = {
 	0x45, 0x4E, 0x53, 0x58, 0x69, 0x62, 0x7F, 0x74, 0x1D, 0x16, 0x0B, 0x00, 0x31, 0x3A, 0x27, 0x2C,
 	0xF5, 0xFE, 0xE3, 0xE8, 0xD9, 0xD2, 0xCF, 0xC4, 0xAD, 0xA6, 0xBB, 0xB0, 0x81, 0x8A, 0x97, 0x9C};
 
+// Определение addPkcs7Padding
+std::vector<uint8_t> addPkcs7Padding(const std::vector<uint8_t> &data) {
+	size_t blockSize = 16;
+	size_t paddingBytes = blockSize - (data.size() % blockSize);
+	if (paddingBytes == 0) {
+		paddingBytes = blockSize; // Добавляем целый блок, если уже кратно
+	}
+
+	std::vector<uint8_t> paddedData = data;
+	paddedData.reserve(data.size() + paddingBytes);
+	for (size_t i = 0; i < paddingBytes; ++i) {
+		paddedData.push_back(static_cast<uint8_t>(paddingBytes));
+	}
+	return paddedData;
+}
+
+// Определение removePkcs7Padding
+std::vector<uint8_t> removePkcs7Padding(const std::vector<uint8_t> &paddedData) {
+	if (paddedData.empty()) {
+		return {};
+	}
+	uint8_t paddingBytes = paddedData.back();
+	// Проверка на корректность значения paddingBytes (не может быть 0 и не должно быть больше
+	// размера блока)
+	if (paddingBytes == 0 || paddingBytes > 16 || paddingBytes > paddedData.size()) {
+		std::cerr << "Предупреждение: Некорректное значение отступа ("
+				  << static_cast<int>(paddingBytes) << ") при расшифровке." << std::endl;
+		return paddedData; // Возвращаем как есть или обрабатываем ошибку
+	}
+	// Дополнительная проверка: все ли байты отступа имеют ожидаемое значение
+	for (size_t i = 1; i <= paddingBytes; ++i) {
+		if (paddedData[paddedData.size() - i] != paddingBytes) {
+			std::cerr << "Предупреждение: Несоответствие байтов отступа при расшифровке. Ожидалось "
+					  << static_cast<int>(paddingBytes) << ", получено "
+					  << static_cast<int>(paddedData[paddedData.size() - i]) << std::endl;
+			return paddedData; // Возвращаем как есть или обрабатываем ошибку
+		}
+	}
+	return std::vector<uint8_t>(paddedData.begin(), paddedData.end() - paddingBytes);
+}
+
 // Вычисляет R_con для заданного раунда
 uint8_t getRcon(uint8_t round) {
 	uint8_t rconVal = 1;
