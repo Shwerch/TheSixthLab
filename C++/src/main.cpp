@@ -1,8 +1,10 @@
 #include "../include/input.hpp"
 #include "../include/main_menu.hpp"
 
+#include "../include/modules/game_of_life.hpp"
 #include "../include/modules/matrix_operations.hpp"
 #include "../include/modules/matrix_replace.hpp"
+#include "../include/modules/maximise_bananas.hpp"
 
 int main() {
 	while (true) {
@@ -20,6 +22,12 @@ int main() {
 			break;
 		case MainMenu::MATRIX_REPLACE:
 			runMatrixReplace();
+			break;
+		case MainMenu::GAME_OF_LIFE:
+			runGameOfLife();
+			break;
+		case MainMenu::MAXIMISE_BANANAS:
+			runMaximiseBananas();
 			break;
 		case MainMenu::EXIT:
 			return 0;
