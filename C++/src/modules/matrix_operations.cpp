@@ -53,7 +53,6 @@ void print_matrix(const std::vector<std::vector<int>> &matrix) {
 std::vector<int> find_rows_with_min_negative(const std::vector<std::vector<int>> &matrix,
 											 int min_negatives) {
 	std::vector<int> row_indices;
-	// Изменено: используем size_t для индекса, чтобы избежать ошибки sign-compare
 	for (size_t i = 0; i < matrix.size(); ++i) {
 		int negative_count = 0;
 		for (int val : matrix[i]) {
@@ -72,7 +71,6 @@ std::vector<int> extract_negative_elements(const std::vector<std::vector<int>> &
 										   const std::vector<int> &row_indices) {
 	std::vector<int> negative_elements;
 	for (int row_index : row_indices) {
-		// Изменено: приводим row_index к size_t для сравнения с matrix.size()
 		if (row_index >= 0 && static_cast<size_t>(row_index) < matrix.size()) {
 			for (int val : matrix[row_index]) {
 				if (val < 0) {

@@ -1,0 +1,1360 @@
+
+// Содержимое файла include/input.hpp
+
+#pragma once
+
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+void clearInput();
+
+template <typename T> T getValue(const std::string &message) {
+	T value;
+	while (true) {
+		std::cout << message << ": ";
+		std::cin >> value;
+		if (std::cin.good()) {
+			break;
+		}
+		clearInput();
+	}
+	return value;
+}
+
+std::string getLine(const std::string &message);
+
+template <typename T> std::vector<T> getVector(const std::string &message) {
+	std::vector<T> result;
+	std::string line;
+
+	while (true) {
+		clearInput();
+		std::cout << message << ": ";
+		std::getline(std::cin, line);
+		std::stringstream ss(line);
+		int num;
+		result.clear();
+		while (ss >> num) {
+			result.push_back(num);
+		}
+		if (!result.empty() && ss.eof()) {
+			break;
+		}
+	}
+	return result;
+}
+
+
+
+// Содержимое файла include/main_menu.hpp
+
+#pragma once
+
+#include <stdexcept>
+#include <string_view>
+
+enum class MainMenu {
+	MATRIX_OPERATIONS,
+	MATRIX_REPLACE,
+	GAME_OF_LIFE,
+	MAXIMISE_BANANAS,
+	GAUSS_SOLVER,
+	ITERATIVE_SOLVER,
+	AES,
+	EXIT,
+};
+
+constexpr int mainMenuElements = static_cast<int>(MainMenu::EXIT) + 1;
+
+constexpr std::string_view getElementSescription(MainMenu element) {
+	switch (element) {
+	case MainMenu::MATRIX_OPERATIONS:
+		return "Определение матрицы M на N псевдослучайными числами";
+	case MainMenu::MATRIX_REPLACE:
+		return "Определение матрицы N на N и перестановка значений в ней";
+	case MainMenu::GAME_OF_LIFE:
+		return "Игра 'Жизнь'";
+	case MainMenu::MAXIMISE_BANANAS:
+		return "Игра с бананами";
+	case MainMenu::GAUSS_SOLVER:
+		return "Решение системы уравнений методом Гаусса";
+	case MainMenu::ITERATIVE_SOLVER:
+		return "Решение системы уравнений приближенным методом";
+	case MainMenu::AES:
+		return "Алгоритм шифрования AES128 CBC";
+	case MainMenu::EXIT:
+		return "Выход из программы";
+	default:
+		throw std::runtime_error("Как ты это сделал");
+	}
+}
+
+MainMenu convertIntToMainMenu(int element);
+
+void printMainMenu();
+
+
+
+// Содержимое файла include/modules/aes_cipher.hpp
+
+#pragma once
+
+void runAES();
+
+
+
+// Содержимое файла include/modules/game_of_life.hpp
+
+#pragma once
+
+void runGameOfLife();
+
+
+
+// Содержимое файла include/modules/gauss_solver.hpp
+
+#pragma once
+
+void runGaussSolver();
+
+
+
+// Содержимое файла include/modules/iterative_solver.hpp
+
+#pragma once
+
+void runIterativeSolver();
+
+
+
+// Содержимое файла include/modules/matrix_operations.hpp
+
+#pragma once
+
+void runMatrixOperations();
+
+
+
+// Содержимое файла include/modules/matrix_replace.hpp
+
+#pragma once
+
+void runMatrixReplace();
+
+
+
+// Содержимое файла include/modules/maximise_bananas.hpp
+
+#pragma once
+
+void runMaximiseBananas();
+
+
+
+// Содержимое файла src/input.cpp
+
+#include "input.hpp"
+
+#include <limits>
+#include <string>
+
+void clearInput() {
+	std::cin.clear();
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+std::string getLine(const std::string &message) {
+	clearInput();
+	std::string input;
+	std::cout << message << ": ";
+	std::getline(std::cin, input);
+	std::cout << std::endl;
+	return input;
+}
+
+
+
+// Содержимое файла src/main.cpp
+
+#include "../include/input.hpp"
+#include "../include/main_menu.hpp"
+
+#include "../include/modules/aes_cipher.hpp"
+#include "../include/modules/game_of_life.hpp"
+#include "../include/modules/gauss_solver.hpp"
+#include "../include/modules/iterative_solver.hpp"
+#include "../include/modules/matrix_operations.hpp"
+#include "../include/modules/matrix_replace.hpp"
+#include "../include/modules/maximise_bananas.hpp"
+
+int main() {
+	while (true) {
+		printMainMenu();
+		int value = getValue<int>("Введите раздел программы");
+		MainMenu element;
+		try {
+			element = convertIntToMainMenu(value);
+		} catch (...) {
+			continue;
+		}
+		switch (element) {
+		case MainMenu::MATRIX_OPERATIONS:
+			runMatrixOperations();
+			break;
+		case MainMenu::MATRIX_REPLACE:
+			runMatrixReplace();
+			break;
+		case MainMenu::GAME_OF_LIFE:
+			runGameOfLife();
+			break;
+		case MainMenu::MAXIMISE_BANANAS:
+			runMaximiseBananas();
+			break;
+		case MainMenu::GAUSS_SOLVER:
+			runGaussSolver();
+			break;
+		case MainMenu::ITERATIVE_SOLVER:
+			runIterativeSolver();
+			break;
+		case MainMenu::AES:
+			runAES();
+			break;
+		case MainMenu::EXIT:
+			return 0;
+		}
+	}
+	return 0;
+}
+
+
+
+// Содержимое файла src/main_menu.cpp
+
+#include "../include/main_menu.hpp"
+
+#include <iostream>
+#include <stdexcept>
+
+MainMenu convertIntToMainMenu(int element) {
+	element--;
+	if (element > static_cast<int>(MainMenu::EXIT) || element < 0) {
+		throw std::runtime_error("Некорректный ввод");
+	}
+	return static_cast<MainMenu>(element);
+}
+
+void printMainMenu() {
+	for (int i = 0; i < mainMenuElements; i++) {
+		std::cout << "[" << i + 1 << "] " << getElementSescription(static_cast<MainMenu>(i))
+				  << std::endl;
+	}
+	std::cout << std::endl;
+}
+
+
+
+// Содержимое файла src/modules/aes_cipher.cpp
+
+#include <algorithm>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <iterator>
+#include <random>
+#include <string>
+#include <vector>
+
+using byte = unsigned char;
+
+using AesBlock = std::vector<byte>;
+
+const byte s_box[256] = {
+	0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
+	0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
+	0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15,
+	0x04, 0xc7, 0x23, 0xc3, 0x18, 0x96, 0x05, 0x9a, 0x07, 0x12, 0x80, 0xe2, 0xeb, 0x27, 0xb2, 0x75,
+	0x09, 0x83, 0x2c, 0x1a, 0x1b, 0x6e, 0x5a, 0xa0, 0x52, 0x3b, 0xd6, 0xb3, 0x29, 0xe3, 0x2f, 0x84,
+	0x53, 0xd1, 0x00, 0xed, 0x20, 0xfc, 0xb1, 0x5b, 0x6a, 0xcb, 0xbe, 0x39, 0x4a, 0x4c, 0x58, 0xcf,
+	0xd0, 0xef, 0xaa, 0xfb, 0x43, 0x4d, 0x33, 0x85, 0x45, 0xf9, 0x02, 0x7f, 0x50, 0x3c, 0x9f, 0xa8,
+	0x51, 0xa3, 0x40, 0x8f, 0x92, 0x9d, 0x38, 0xf5, 0xbc, 0xb6, 0xda, 0x21, 0x10, 0xff, 0xf3, 0xd2,
+	0xcd, 0x0c, 0x13, 0xec, 0x5f, 0x97, 0x44, 0x17, 0xc4, 0xa7, 0x7e, 0x3d, 0x64, 0x5d, 0x19, 0x73,
+	0x60, 0x81, 0x4f, 0xdc, 0x22, 0x2a, 0x90, 0x88, 0x46, 0xee, 0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb,
+	0xe0, 0x32, 0x3a, 0x0a, 0x49, 0x06, 0x24, 0x5c, 0xc2, 0xd3, 0xac, 0x62, 0x91, 0x95, 0xe4, 0x79,
+	0xe7, 0xc8, 0x37, 0x6d, 0x8d, 0xd5, 0x4e, 0xa9, 0x6c, 0x56, 0xf4, 0xea, 0x65, 0x7a, 0xae, 0x08,
+	0xba, 0x78, 0x25, 0x2e, 0x1c, 0xa6, 0xb4, 0xc6, 0xe8, 0xdd, 0x74, 0x1f, 0x4b, 0xbd, 0x8b, 0x8a,
+	0x70, 0x3e, 0xb5, 0x66, 0x48, 0x03, 0xf6, 0x0e, 0x61, 0x35, 0x57, 0xb9, 0x86, 0xc1, 0x1d, 0x9e,
+	0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf,
+	0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16};
+const byte inv_s_box[256] = {
+	0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb,
+	0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb,
+	0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e,
+	0x08, 0x2e, 0xa1, 0x66, 0x28, 0xd9, 0x24, 0xb2, 0x76, 0x5b, 0xa2, 0x49, 0x6d, 0x8b, 0xd1, 0x25,
+	0x72, 0xf8, 0xf6, 0x64, 0x86, 0x68, 0x98, 0x16, 0xd4, 0xa4, 0x5c, 0xcc, 0x5d, 0x65, 0xb6, 0x92,
+	0x6c, 0x70, 0x48, 0x50, 0xfd, 0xed, 0xb9, 0xda, 0x5e, 0x15, 0x46, 0x57, 0xa7, 0x8d, 0x9d, 0x84,
+	0x90, 0xd8, 0xab, 0x00, 0x8c, 0xbc, 0xd3, 0x0a, 0xf7, 0xe4, 0x58, 0x05, 0xb8, 0xb3, 0x45, 0x06,
+	0xd0, 0x2c, 0x1e, 0x8f, 0xca, 0x3f, 0x0f, 0x02, 0xc1, 0xaf, 0xbd, 0x03, 0x01, 0x13, 0x8a, 0x6b,
+	0x3a, 0x91, 0x11, 0x41, 0x4f, 0x67, 0xdc, 0xea, 0x97, 0xf2, 0xcf, 0xce, 0xf0, 0xb4, 0xe6, 0x73,
+	0x96, 0xac, 0x74, 0x22, 0xe7, 0xad, 0x35, 0x85, 0xe2, 0xf9, 0x37, 0xe8, 0x1c, 0x75, 0xdf, 0x6e,
+	0x47, 0xf1, 0x1a, 0x71, 0x1d, 0x29, 0xc5, 0x89, 0x6f, 0xb7, 0x62, 0x0e, 0xaa, 0x18, 0xbe, 0x1b,
+	0xfc, 0x56, 0x3e, 0x4b, 0xc6, 0xd2, 0x79, 0x20, 0x9a, 0xdb, 0xc0, 0xfe, 0x78, 0xcd, 0x5a, 0xf4,
+	0x1f, 0xdd, 0xa8, 0x33, 0x88, 0x07, 0xc7, 0x31, 0xb1, 0x12, 0x10, 0x59, 0x27, 0x80, 0xec, 0x5f,
+	0x60, 0x51, 0x7f, 0xa9, 0x19, 0xb5, 0x4a, 0x0d, 0x2d, 0xe5, 0x7a, 0x9f, 0x93, 0xc9, 0x9c, 0xef,
+	0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61,
+	0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d};
+const byte Rcon[11] = {0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36};
+
+AesBlock hex_string_to_bytes(const std::string &hex) {
+	AesBlock bytes;
+	std::string current_hex = hex;
+	current_hex.erase(std::remove_if(current_hex.begin(), current_hex.end(), ::isspace),
+					  current_hex.end());
+	if (current_hex.length() % 2 != 0)
+		return {};
+	for (size_t i = 0; i < current_hex.length(); i += 2) {
+		std::string byte_string = current_hex.substr(i, 2);
+		try {
+			bytes.push_back(static_cast<byte>(std::stoul(byte_string, nullptr, 16)));
+		} catch (const std::exception &e) {
+			return {};
+		}
+	}
+	return bytes;
+}
+void print_hex(const AesBlock &data, const std::string &title) {
+	std::cout << title << ": ";
+	for (const auto &byte : data) {
+		std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte);
+	}
+	std::cout << std::dec << std::endl;
+}
+void print_state(const AesBlock &state, const std::string &title) {
+	std::cout << title << ":\n";
+	for (int r = 0; r < 4; ++r) {
+		for (int c = 0; c < 4; ++c) {
+			std::cout << std::hex << std::setw(2) << std::setfill('0')
+					  << static_cast<int>(state[r + c * 4]) << " ";
+		}
+		std::cout << "\n";
+	}
+	std::cout << std::dec;
+}
+AesBlock generate_random_block(size_t size) {
+	AesBlock block(size);
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> distrib(0, 255);
+	for (size_t i = 0; i < size; ++i) {
+		block[i] = static_cast<byte>(distrib(gen));
+	}
+	return block;
+}
+
+void sub_bytes(AesBlock &state) {
+	for (auto &byte : state)
+		byte = s_box[byte];
+}
+void inv_sub_bytes(AesBlock &state) {
+	for (auto &byte : state)
+		byte = inv_s_box[byte];
+}
+void shift_rows(AesBlock &state) {
+	byte temp;
+	temp = state[1];
+	state[1] = state[5];
+	state[5] = state[9];
+	state[9] = state[13];
+	state[13] = temp;
+	temp = state[2];
+	state[2] = state[10];
+	state[10] = temp;
+	temp = state[6];
+	state[6] = state[14];
+	state[14] = temp;
+	temp = state[15];
+	state[15] = state[11];
+	state[11] = state[7];
+	state[7] = state[3];
+	state[3] = temp;
+}
+void inv_shift_rows(AesBlock &state) {
+	byte temp;
+	temp = state[13];
+	state[13] = state[9];
+	state[9] = state[5];
+	state[5] = state[1];
+	state[1] = temp;
+	temp = state[2];
+	state[2] = state[10];
+	state[10] = temp;
+	temp = state[6];
+	state[6] = state[14];
+	state[14] = temp;
+	temp = state[3];
+	state[3] = state[7];
+	state[7] = state[11];
+	state[11] = state[15];
+	state[15] = temp;
+}
+byte gmul(byte a, byte b) {
+	byte p = 0;
+	for (int i = 0; i < 8; ++i) {
+		if (b & 1)
+			p ^= a;
+		bool hi_bit_set = (a & 0x80);
+		a <<= 1;
+		if (hi_bit_set)
+			a ^= 0x1b;
+		b >>= 1;
+	}
+	return p;
+}
+void mix_columns(AesBlock &state) {
+	AesBlock temp_state = state;
+	for (int i = 0; i < 4; ++i) {
+		state[i * 4 + 0] = gmul(temp_state[i * 4 + 0], 2) ^ gmul(temp_state[i * 4 + 1], 3) ^
+						   temp_state[i * 4 + 2] ^ temp_state[i * 4 + 3];
+		state[i * 4 + 1] = temp_state[i * 4 + 0] ^ gmul(temp_state[i * 4 + 1], 2) ^
+						   gmul(temp_state[i * 4 + 2], 3) ^ temp_state[i * 4 + 3];
+		state[i * 4 + 2] = temp_state[i * 4 + 0] ^ temp_state[i * 4 + 1] ^
+						   gmul(temp_state[i * 4 + 2], 2) ^ gmul(temp_state[i * 4 + 3], 3);
+		state[i * 4 + 3] = gmul(temp_state[i * 4 + 0], 3) ^ temp_state[i * 4 + 1] ^
+						   temp_state[i * 4 + 2] ^ gmul(temp_state[i * 4 + 3], 2);
+	}
+}
+void inv_mix_columns(AesBlock &state) {
+	AesBlock temp_state = state;
+	for (int i = 0; i < 4; ++i) {
+		state[i * 4 + 0] = gmul(temp_state[i * 4 + 0], 14) ^ gmul(temp_state[i * 4 + 1], 11) ^
+						   gmul(temp_state[i * 4 + 2], 13) ^ gmul(temp_state[i * 4 + 3], 9);
+		state[i * 4 + 1] = gmul(temp_state[i * 4 + 0], 9) ^ gmul(temp_state[i * 4 + 1], 14) ^
+						   gmul(temp_state[i * 4 + 2], 11) ^ gmul(temp_state[i * 4 + 3], 13);
+		state[i * 4 + 2] = gmul(temp_state[i * 4 + 0], 13) ^ gmul(temp_state[i * 4 + 1], 9) ^
+						   gmul(temp_state[i * 4 + 2], 14) ^ gmul(temp_state[i * 4 + 3], 11);
+		state[i * 4 + 3] = gmul(temp_state[i * 4 + 0], 11) ^ gmul(temp_state[i * 4 + 1], 13) ^
+						   gmul(temp_state[i * 4 + 2], 9) ^ gmul(temp_state[i * 4 + 3], 14);
+	}
+}
+void add_round_key(AesBlock &state, const AesBlock &round_key) {
+	for (int i = 0; i < 16; ++i)
+		state[i] ^= round_key[i];
+}
+
+std::vector<AesBlock> key_expansion(const AesBlock &key) {
+	std::vector<AesBlock> round_keys(11, AesBlock(16));
+	round_keys[0] = key;
+	for (int i = 1; i <= 10; ++i) {
+		AesBlock temp(4);
+		for (int k = 0; k < 4; k++)
+			temp[k] = round_keys[i - 1][12 + k];
+		byte t = temp[0];
+		temp[0] = temp[1];
+		temp[1] = temp[2];
+		temp[2] = temp[3];
+		temp[3] = t;
+		for (int k = 0; k < 4; k++)
+			temp[k] = s_box[temp[k]];
+		temp[0] ^= Rcon[i];
+		for (int j = 0; j < 4; ++j)
+			round_keys[i][j] = round_keys[i - 1][j] ^ temp[j];
+		for (int j = 4; j < 16; ++j)
+			round_keys[i][j] = round_keys[i - 1][j] ^ round_keys[i][j - 4];
+	}
+	return round_keys;
+}
+
+void block_to_state(const AesBlock &block, AesBlock &state) {
+	for (int r = 0; r < 4; ++r)
+		for (int c = 0; c < 4; ++c)
+			state[r + c * 4] = block[r * 4 + c];
+}
+void state_to_block(const AesBlock &state, AesBlock &block) {
+	for (int r = 0; r < 4; ++r)
+		for (int c = 0; c < 4; ++c)
+			block[r * 4 + c] = state[r + c * 4];
+}
+void encrypt_block(AesBlock &block, const std::vector<AesBlock> &round_keys) {
+	AesBlock state(16);
+	block_to_state(block, state);
+	add_round_key(state, round_keys[0]);
+	print_state(state, "State after Initial Round");
+	for (int round = 1; round < 10; ++round) {
+		sub_bytes(state);
+		shift_rows(state);
+		mix_columns(state);
+		add_round_key(state, round_keys[round]);
+		print_state(state, "State after Round " + std::to_string(round));
+	}
+	sub_bytes(state);
+	shift_rows(state);
+	add_round_key(state, round_keys[10]);
+	print_state(state, "State after Final Round");
+	state_to_block(state, block);
+}
+
+void decrypt_block(AesBlock &block, const std::vector<AesBlock> &round_keys) {
+	AesBlock state(16);
+	block_to_state(block, state);
+	add_round_key(state, round_keys[10]);
+	print_state(state, "State after Initial Round (Decryption)");
+	for (int round = 9; round >= 1; --round) {
+		inv_shift_rows(state);
+		inv_sub_bytes(state);
+		add_round_key(state, round_keys[round]);
+		print_state(state, "State before InvMixColumns (Round " + std::to_string(round) + ")");
+		inv_mix_columns(state);
+	}
+	inv_shift_rows(state);
+	inv_sub_bytes(state);
+	add_round_key(state, round_keys[0]);
+	print_state(state, "State after Final Round (Decryption)");
+	state_to_block(state, block);
+}
+
+AesBlock pkcs7_pad(const AesBlock &data) {
+	AesBlock padded_data = data;
+	size_t pad_size = 16 - (data.size() % 16);
+	for (size_t i = 0; i < pad_size; ++i)
+		padded_data.push_back(static_cast<byte>(pad_size));
+	return padded_data;
+}
+AesBlock pkcs7_unpad(const AesBlock &data) {
+	if (data.empty())
+		return {};
+	byte pad_size = data.back();
+	if (pad_size == 0 || pad_size > 16 || pad_size > data.size())
+		return data;
+	for (size_t i = 0; i < pad_size; ++i)
+		if (data[data.size() - 1 - i] != pad_size)
+			return data;
+	return AesBlock(data.begin(), data.end() - pad_size);
+}
+
+AesBlock encrypt_cbc(AesBlock &plaintext, const std::vector<AesBlock> &round_keys, AesBlock &iv) {
+	AesBlock padded_plaintext = pkcs7_pad(plaintext);
+	AesBlock ciphertext;
+	AesBlock prev_block = iv;
+	for (size_t i = 0; i < padded_plaintext.size(); i += 16) {
+		AesBlock block(padded_plaintext.begin() + i, padded_plaintext.begin() + i + 16);
+		add_round_key(block, prev_block);
+		std::cout << "\n--- Encrypting Block " << (i / 16) + 1 << " ---\n";
+		encrypt_block(block, round_keys);
+		ciphertext.insert(ciphertext.end(), block.begin(), block.end());
+		prev_block = block;
+	}
+	return ciphertext;
+}
+AesBlock decrypt_cbc(AesBlock &ciphertext, const std::vector<AesBlock> &round_keys, AesBlock &iv) {
+	AesBlock plaintext;
+	AesBlock prev_block = iv;
+	for (size_t i = 0; i < ciphertext.size(); i += 16) {
+		AesBlock block(ciphertext.begin() + i, ciphertext.begin() + i + 16);
+		AesBlock temp_block = block;
+		std::cout << "\n--- Decrypting Block " << (i / 16) + 1 << " ---\n";
+		decrypt_block(block, round_keys);
+		add_round_key(block, prev_block);
+		plaintext.insert(plaintext.end(), block.begin(), block.end());
+		prev_block = temp_block;
+	}
+	return pkcs7_unpad(plaintext);
+}
+
+void runAES() {
+	AesBlock key = generate_random_block(16);
+	std::ofstream key_file("key.txt", std::ios::out | std::ios::binary);
+	if (key_file.is_open()) {
+		key_file.write(reinterpret_cast<const char *>(key.data()), key.size());
+		key_file.close();
+		std::cout << "Сгенерирован ключ и сохранен в key.txt" << std::endl;
+	} else {
+		std::cerr << "Ошибка: Не удалось открыть key.txt для записи." << std::endl;
+		return;
+	}
+	print_hex(key, "Сгенерированный ключ (Key)");
+
+	std::vector<AesBlock> round_keys = key_expansion(key);
+	std::cout << "\n--- Сгенерированные ключи раундов ---\n";
+	for (size_t i = 0; i < round_keys.size(); ++i) {
+		print_hex(round_keys[i], "Round Key " + std::to_string(i));
+	}
+
+	do {
+		std::cout << "\nВыберите, что обработать:\n1. Текст\n2. Файл\n> ";
+		int mode_choice;
+		std::cin >> mode_choice;
+		std::cin.ignore();
+
+		std::cout << "Выберите действие:\n1. Зашифровать\n2. Расшифровать\n> ";
+		int action_choice;
+		std::cin >> action_choice;
+		std::cin.ignore();
+
+		AesBlock data_to_process;
+
+		if (mode_choice == 1) { // Текст
+			if (action_choice == 1) {
+				std::cout << "Введите текст для шифрования: ";
+				std::string text_input;
+				std::getline(std::cin, text_input);
+				data_to_process.assign(text_input.begin(), text_input.end());
+			} else {
+				std::cout << "Вставьте HEX-строку для расшифровки: ";
+				std::string hex_input;
+				std::getline(std::cin, hex_input);
+				data_to_process = hex_string_to_bytes(hex_input);
+			}
+		} else if (mode_choice == 2) {
+			std::cout << "Введите путь к файлу: ";
+			std::string file_path;
+			std::getline(std::cin, file_path);
+			std::ifstream input_file(file_path, std::ios::binary);
+			if (!input_file) {
+				std::cerr << "Ошибка: Не удалось открыть файл " << file_path << std::endl;
+				return;
+			}
+			data_to_process.assign(std::istreambuf_iterator<char>(input_file), {});
+			input_file.close();
+		} else {
+			std::cerr << "Неверный выбор." << std::endl;
+			return;
+		}
+
+		if (action_choice == 1) { // Шифрование
+			AesBlock iv = generate_random_block(16);
+			print_hex(iv, "Вектор инициализации (IV), используемый для шифрования");
+
+			AesBlock ciphertext = encrypt_cbc(data_to_process, round_keys, iv);
+
+			AesBlock output_with_iv = iv;
+			output_with_iv.insert(output_with_iv.end(), ciphertext.begin(), ciphertext.end());
+
+			print_hex(output_with_iv, "\nРезультат (IV + Шифротекст в HEX)");
+
+			if (mode_choice == 2) {
+				std::ofstream output_file("encrypted_file.bin", std::ios::binary);
+				output_file.write(reinterpret_cast<const char *>(output_with_iv.data()),
+								  output_with_iv.size());
+				output_file.close();
+				std::cout << "Зашифрованный файл (IV + шифротекст) сохранен как encrypted_file.bin"
+						  << std::endl;
+			}
+		} else if (action_choice == 2) { // Дешифрование
+			if (data_to_process.size() < 16) {
+				std::cerr << "Ошибка: Входные данные слишком малы для расшифровки (отсутствует IV)."
+						  << std::endl;
+				return;
+			}
+
+			AesBlock iv(data_to_process.begin(), data_to_process.begin() + 16);
+			AesBlock ciphertext(data_to_process.begin() + 16, data_to_process.end());
+
+			if (ciphertext.empty() || ciphertext.size() % 16 != 0) {
+				std::cerr << "Ошибка: Длина шифротекста некорректна (пуста или не кратна 16)."
+						  << std::endl;
+				return;
+			}
+
+			print_hex(iv, "Извлеченный вектор инициализации (IV) для дешифрования");
+
+			AesBlock decrypted_text = decrypt_cbc(ciphertext, round_keys, iv);
+
+			std::cout << "\nРезультат (открытый текст): ";
+			for (const auto &c : decrypted_text)
+				std::cout << c;
+			std::cout << std::endl;
+			print_hex(decrypted_text, "Результат в HEX");
+
+			if (mode_choice == 2) {
+				std::string out_filename = "decrypted_file.txt";
+				std::ofstream output_file(out_filename, std::ios::binary);
+				output_file.write(reinterpret_cast<const char *>(decrypted_text.data()),
+								  decrypted_text.size());
+				output_file.close();
+				std::cout << "Расшифрованный файл сохранен как " << out_filename << std::endl;
+			}
+		} else {
+			std::cerr << "Неверный выбор действия." << std::endl;
+			return;
+		}
+	} while (true);
+}
+
+
+
+// Содержимое файла src/modules/game_of_life.cpp
+
+#include "../../include/modules/game_of_life.hpp"
+
+#include <chrono>
+#include <cstdlib>
+#include <iostream>
+#include <random>
+#include <string>
+#include <thread>
+#include <vector>
+
+struct GameOfLife {
+	int width;
+	int height;
+	std::vector<std::vector<bool>> grid;
+	std::vector<std::vector<bool>> nextGrid;
+
+	GameOfLife(int width, int height);
+
+	void initializeRandomly(double density = 0.3);
+
+	void initializePattern(const std::vector<std::string> &pattern, int startX, int startY);
+
+	void nextGeneration();
+
+	void draw() const;
+
+	void run(int generations, std::chrono::milliseconds delay);
+
+	void clearConsole() const;
+
+  private:
+	int countLiveNeighbors(int x, int y) const;
+};
+
+GameOfLife::GameOfLife(int width, int height)
+	: width(width), height(height), grid(height, std::vector<bool>(width, false)),
+	  nextGrid(height, std::vector<bool>(width, false)) {}
+
+void GameOfLife::initializeRandomly(double density) {
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis(0.0, 1.0);
+
+	for (int y = 0; y < height; ++y) {
+		for (int x = 0; x < width; ++x) {
+			grid[y][x] = (dis(gen) < density);
+		}
+	}
+}
+
+void GameOfLife::initializePattern(const std::vector<std::string> &pattern, int startX,
+								   int startY) {
+	for (size_t y = 0; y < pattern.size(); ++y) {
+		for (size_t x = 0; x < pattern[y].length(); ++x) {
+			int gridX = startX + x;
+			int gridY = startY + y;
+			if (gridX >= 0 && gridX < width && gridY >= 0 && gridY < height) {
+				grid[gridY][gridX] = (pattern[y][x] == 'X' || pattern[y][x] == '1');
+			}
+		}
+	}
+}
+
+int GameOfLife::countLiveNeighbors(int x, int y) const {
+	int liveNeighbors = 0;
+	for (int dy = -1; dy <= 1; ++dy) {
+		for (int dx = -1; dx <= 1; ++dx) {
+			if (dx == 0 && dy == 0)
+				continue;
+
+			// Замкнутая плоскость (тор)
+			int nx = (x + dx + width) % width;
+			int ny = (y + dy + height) % height;
+
+			if (grid[ny][nx]) {
+				liveNeighbors++;
+			}
+		}
+	}
+	return liveNeighbors;
+}
+
+void GameOfLife::nextGeneration() {
+	for (int y = 0; y < height; ++y) {
+		for (int x = 0; x < width; ++x) {
+			int liveNeighbors = countLiveNeighbors(x, y);
+			bool isAlive = grid[y][x];
+
+			// Правила игры "Жизнь"
+			if (isAlive) {
+				if (liveNeighbors < 2 || liveNeighbors > 3) {
+					nextGrid[y][x] = false; // Умирает от одиночества или перенаселения
+				} else {
+					nextGrid[y][x] = true; // Выживает
+				}
+			} else {
+				if (liveNeighbors == 3) {
+					nextGrid[y][x] = true; // Рождается
+				} else {
+					nextGrid[y][x] = false; // Остается мертвой
+				}
+			}
+		}
+	}
+	grid = nextGrid;
+}
+
+void GameOfLife::draw() const {
+	for (int y = 0; y < height; ++y) {
+		for (int x = 0; x < width; ++x) {
+			std::cout << (grid[y][x] ? 'X' : ' ');
+		}
+		std::cout << '\n';
+	}
+}
+
+void GameOfLife::clearConsole() const {
+#ifdef _WIN32
+	std::system("cls");
+#else
+	std::system("clear");
+#endif
+}
+
+void GameOfLife::run(int generations, std::chrono::milliseconds delay) {
+	for (int i = 0; i < generations; ++i) {
+		clearConsole();
+		draw();
+		std::cout << "Поколение: " << i + 1 << "\n";
+		nextGeneration();
+		std::this_thread::sleep_for(delay);
+	}
+}
+
+void runGameOfLife() {
+	std::cout << "Демонстрация ружья Госпера:\n";
+	GameOfLife gliderGunGame(80, 40);
+
+	// Шаблон ружья Госпера
+	std::vector<std::string> gosperGliderGun = {
+		"........................X...........", "......................X.X...........",
+		"............XX......XX............XX", "...........X...X....XX............XX",
+		"XX........X.....X...XX..............", "XX........X...X.XX....X.X...........",
+		"..........X.....X.......X...........", "...........X...X....................",
+		"............XX......................"};
+	gliderGunGame.initializePattern(gosperGliderGun, 1, 1); // Размещаем ружье в начале
+	gliderGunGame.run(200, std::chrono::milliseconds(100)); // 200 поколений с задержкой 100 мс
+
+	// Демонстрация случайной колонии
+	std::cout << "\nДемонстрация случайной колонии:\n";
+	// Создание экземпляра структуры GameOfLife
+	GameOfLife randomGame(60, 30);						 // Меньший размер для случайной колонии
+	randomGame.initializeRandomly(0.2);					 // Плотность 20%
+	randomGame.run(150, std::chrono::milliseconds(150)); // 150 поколений с задержкой 150 мс
+}
+
+
+
+// Содержимое файла src/modules/gauss_solver.cpp
+
+#include "../../include/modules/gauss_solver.hpp"
+
+#include <algorithm>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <stdexcept>
+#include <vector>
+
+std::vector<double> solve(std::vector<std::vector<double>> matrix,
+						  const std::vector<double> &solutions) {
+	const size_t n = matrix.size();
+	if (n == 0 || matrix.at(0).size() != n || solutions.size() != n) {
+		throw std::invalid_argument("Invalid matrix or vector dimensions.");
+	}
+
+	for (size_t i = 0; i < n; ++i) {
+		matrix.at(i).push_back(solutions.at(i));
+	}
+
+	for (size_t k = 0; k < n; ++k) {
+		size_t pivot_row = k;
+		for (size_t i = k + 1; i < n; ++i) {
+			if (std::abs(matrix.at(i).at(k)) > std::abs(matrix.at(pivot_row).at(k))) {
+				pivot_row = i;
+			}
+		}
+
+		if (pivot_row != k) {
+			std::swap(matrix.at(k), matrix.at(pivot_row));
+		}
+
+		if (std::abs(matrix.at(k).at(k)) < 1e-10) {
+			throw std::runtime_error("Matrix is singular or nearly singular.");
+		}
+
+		for (size_t i = k + 1; i < n; ++i) {
+			const double factor = matrix.at(i).at(k) / matrix.at(k).at(k);
+			for (size_t j = k; j < n + 1; ++j) {
+				matrix.at(i).at(j) -= factor * matrix.at(k).at(j);
+			}
+		}
+	}
+
+	std::vector<double> x(n);
+	for (int i = n - 1; i >= 0; --i) {
+		double sum = 0.0;
+		for (size_t j = i + 1; j < n; ++j) {
+			sum += matrix.at(i).at(j) * x.at(j);
+		}
+		x.at(i) = (matrix.at(i).at(n) - sum) / matrix.at(i).at(i);
+	}
+
+	return x;
+}
+
+void runGaussSolver() {
+	std::vector<std::vector<double>> matrix = {{0.91, -0.04, 0.21, -18.0},
+											   {0.25, -1.23, -0.23, -0.09},
+											   {-0.21, -0.23, 0.80, -0.13},
+											   {0.15, -1.31, 0.06, -1.04}};
+
+	std::vector<double> solutions = {-1.24, -1.04, 2.56, 0.91};
+
+	try {
+		std::vector<double> x = solve(matrix, solutions);
+
+		std::cout << "Решение найдено методом Гаусса:" << std::endl;
+		std::cout << std::fixed << std::setprecision(5);
+		for (size_t i = 0; i < x.size(); ++i) {
+			std::cout << "x" << i + 1 << " = " << x.at(i) << std::endl;
+		}
+	} catch (const std::exception &e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+		return;
+	}
+}
+
+
+
+// Содержимое файла src/modules/iterative_solver.cpp
+
+#include "../../include/modules/iterative_solver.hpp"
+#include <algorithm>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <stdexcept>
+#include <vector>
+
+std::vector<double> solve(const std::vector<std::vector<double>> &matrix,
+						  const std::vector<double> &solutions, double tolerance = 1e-3,
+						  int max_iterations = 500) {
+	const size_t n = matrix.size();
+	if (n == 0 || matrix.at(0).size() != n || solutions.size() != n) {
+		throw std::invalid_argument("Invalid matrix or vector dimensions.");
+	}
+
+	std::vector<std::vector<double>> Ap = {
+		{matrix.at(0).at(3), matrix.at(0).at(1), matrix.at(0).at(2), matrix.at(0).at(0)},
+		{matrix.at(3).at(3), matrix.at(3).at(1), matrix.at(3).at(2), matrix.at(3).at(0)},
+		{matrix.at(2).at(3), matrix.at(2).at(1), matrix.at(2).at(2), matrix.at(2).at(0)},
+		{matrix.at(1).at(3), matrix.at(1).at(1), matrix.at(1).at(2), matrix.at(1).at(0)}};
+
+	std::vector<double> bp = {solutions.at(0), solutions.at(3), solutions.at(2), solutions.at(1)};
+
+	std::vector<double> y(n, 0.0);
+
+	for (int k = 0; k < max_iterations; ++k) {
+		std::vector<double> y_prev = y;
+
+		for (size_t i = 0; i < n; ++i) {
+			double sigma = 0.0;
+			for (size_t j = 0; j < n; ++j) {
+				if (i != j) {
+					sigma += Ap.at(i).at(j) * y.at(j);
+				}
+			}
+			if (Ap.at(i).at(i) == 0.0) {
+				throw std::runtime_error(
+					"Метод не может быть применен, если диагональный элемент равен нулю");
+			}
+			y.at(i) = (bp.at(i) - sigma) / Ap.at(i).at(i);
+
+			if (std::isnan(y.at(i)) || std::isinf(y.at(i))) {
+				throw std::runtime_error("Метод расходится");
+			}
+		}
+
+		double max_diff = 0.0;
+		for (size_t i = 0; i < n; ++i) {
+			max_diff = std::max(max_diff, std::abs(y.at(i) - y_prev.at(i)));
+		}
+
+		if (max_diff < tolerance) {
+			std::vector<double> x(n);
+			x.at(0) = y.at(3);
+			x.at(1) = y.at(1);
+			x.at(2) = y.at(2);
+			x.at(3) = y.at(0);
+			return x;
+		}
+	}
+
+	throw std::runtime_error("Достигнут предел итераций");
+}
+
+void runIterativeSolver() {
+	std::vector<std::vector<double>> matrix = {{0.91, -0.04, 0.21, -18.0},
+											   {0.25, -1.23, -0.23, -0.09},
+											   {-0.21, -0.23, 0.80, -0.13},
+											   {0.15, -1.31, 0.06, -1.04}};
+
+	std::vector<double> solutions = {-1.24, -1.04, 2.56, 0.91};
+
+	try {
+		std::vector<double> solution = solve(matrix, solutions, 1e-3);
+
+		std::cout << "Решение найдено приближенным методом:" << std::endl;
+		std::cout << std::fixed << std::setprecision(5);
+		for (size_t i = 0; i < solution.size(); ++i) {
+			std::cout << "x" << i + 1 << " = " << solution.at(i) << std::endl;
+		}
+	} catch (const std::exception &e) {
+		std::cerr << "Ошибка: " << e.what() << std::endl;
+	}
+}
+
+
+
+// Содержимое файла src/modules/matrix_operations.cpp
+
+#include "../../include/modules/matrix_operations.hpp"
+
+#include <iostream>
+#include <limits>
+#include <random>
+#include <string>
+#include <vector>
+
+int get_safe_int_input(const std::string &prompt) {
+	int value;
+	while (true) {
+		std::cout << prompt;
+		std::cin >> value;
+		if (std::cin.fail()) {
+			std::cout << "Некорректный ввод. Пожалуйста, введите целое число.\n";
+			std::cin.clear();
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		} else {
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
+							'\n'); // Очистка буфера ввода
+			return value;
+		}
+	}
+}
+
+std::vector<std::vector<int>> initialize_matrix(int rows, int cols, int min_val, int max_val) {
+	std::vector<std::vector<int>> matrix(rows, std::vector<int>(cols));
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> distrib(min_val, max_val);
+
+	for (int i = 0; i < rows; ++i) {
+		for (int j = 0; j < cols; ++j) {
+			matrix[i][j] = distrib(gen);
+		}
+	}
+	return matrix;
+}
+
+void print_matrix(const std::vector<std::vector<int>> &matrix) {
+	if (matrix.empty()) {
+		std::cout << "Матрица пуста.\n";
+		return;
+	}
+	for (const auto &row : matrix) {
+		for (int val : row) {
+			std::cout << val << "\t";
+		}
+		std::cout << "\n";
+	}
+}
+
+std::vector<int> find_rows_with_min_negative(const std::vector<std::vector<int>> &matrix,
+											 int min_negatives) {
+	std::vector<int> row_indices;
+	for (size_t i = 0; i < matrix.size(); ++i) {
+		int negative_count = 0;
+		for (int val : matrix[i]) {
+			if (val < 0) {
+				negative_count++;
+			}
+		}
+		if (negative_count >= min_negatives) {
+			row_indices.push_back(static_cast<int>(i));
+		}
+	}
+	return row_indices;
+}
+
+std::vector<int> extract_negative_elements(const std::vector<std::vector<int>> &matrix,
+										   const std::vector<int> &row_indices) {
+	std::vector<int> negative_elements;
+	for (int row_index : row_indices) {
+		if (row_index >= 0 && static_cast<size_t>(row_index) < matrix.size()) {
+			for (int val : matrix[row_index]) {
+				if (val < 0) {
+					negative_elements.push_back(val);
+				}
+			}
+		}
+	}
+	return negative_elements;
+}
+
+std::vector<std::vector<int>>
+create_new_matrix_from_rows(const std::vector<std::vector<int>> &original_matrix,
+							const std::vector<int> &row_indices) {
+	std::vector<std::vector<int>> new_matrix;
+	for (int row_index : row_indices) {
+		// Изменено: приводим row_index к size_t для сравнения с original_matrix.size()
+		if (row_index >= 0 && static_cast<size_t>(row_index) < original_matrix.size()) {
+			new_matrix.push_back(original_matrix[row_index]);
+		}
+	}
+	return new_matrix;
+}
+
+void runMatrixOperations() {
+	int M, N;
+
+	// Ввод размеров матрицы с проверкой
+	while (true) {
+		M = get_safe_int_input("Введите количество строк M (M > 0): ");
+		if (M > 0) {
+			break;
+		} else {
+			std::cout << "Количество строк должно быть больше 0.\n";
+		}
+	}
+
+	while (true) {
+		N = get_safe_int_input("Введите количество столбцов N (N > 0): ");
+		if (N > 0) {
+			break;
+		} else {
+			std::cout << "Количество столбцов должно быть больше 0.\n";
+		}
+	}
+
+	// Инициализация матрицы
+	std::cout << "\nИнициализация матрицы " << M << "x" << N
+			  << " случайными числами в диапазоне [-10, 40]:\n";
+	std::vector<std::vector<int>> matrix = initialize_matrix(M, N, -10, 40);
+	print_matrix(matrix);
+
+	// Поиск строк, содержащих хотя бы три отрицательных элемента
+	std::cout << "\nПоиск строк, содержащих хотя бы три отрицательных элемента...\n";
+	std::vector<int> rows_with_negatives = find_rows_with_min_negative(matrix, 3);
+
+	if (!rows_with_negatives.empty()) {
+		std::cout << "Номера строк, содержащих хотя бы три отрицательных элемента: ";
+		for (int row_index : rows_with_negatives) {
+			std::cout << row_index + 1 << " ";
+		}
+		std::cout << "\n";
+
+		// Инициализация нового массива отрицательными элементами из найденных строк
+		std::vector<int> negative_elements_array =
+			extract_negative_elements(matrix, rows_with_negatives);
+		std::cout << "Новый массив, содержащий все отрицательные элементы из найденных строк: \n";
+		if (!negative_elements_array.empty()) {
+			for (int val : negative_elements_array) {
+				std::cout << val << " ";
+			}
+			std::cout << "\n";
+		} else {
+			std::cout << "В найденных строках нет отрицательных элементов (это маловероятно, если "
+						 "строки были найдены).\n";
+		}
+
+		// Создание новой матрицы из найденных строк
+		std::vector<std::vector<int>> new_matrix =
+			create_new_matrix_from_rows(matrix, rows_with_negatives);
+		std::cout << "\nНовая матрица, состоящая из найденных строк:\n";
+		print_matrix(new_matrix);
+
+	} else {
+		std::cout << "Строки, содержащие хотя бы три отрицательных элемента, не найдены.\n";
+	}
+}
+
+
+
+// Содержимое файла src/modules/matrix_replace.cpp
+
+#include "../../include/modules/matrix_replace.hpp"
+
+#include <chrono>
+#include <iostream>
+#include <optional>
+#include <random>
+
+std::optional<std::vector<std::vector<int>>> generateRandomMatrix(int N) {
+	if (N <= 0 || N % 2 != 0) {
+		std::cerr << "Ошибка: N должно быть положительным четным числом." << std::endl;
+		return std::nullopt;
+	}
+
+	std::vector<std::vector<int>> matrix(N, std::vector<int>(N));
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+
+	std::uniform_int_distribution<> distrib(10, 30);
+
+	for (int i = 0; i < N; ++i) {
+		for (int j = 0; j < N; ++j) {
+			matrix[i][j] = distrib(gen);
+		}
+	}
+	return matrix;
+}
+
+void transformMatrix(std::vector<std::vector<int>> &matrix) {
+	if (matrix.empty()) {
+		return;
+	}
+
+	int N = matrix.size();
+	if (N % 2 != 0) {
+		std::cerr << "Ошибка: Матрица должна быть четного порядка для преобразования четвертей."
+				  << std::endl;
+		return;
+	}
+
+	int halfN = N / 2;
+
+	// Левая нижняя четверть (строки [halfN, N-1], столбцы [0, halfN-1])
+	for (int i = halfN; i < N; ++i) {
+		for (int j = 0; j < halfN; ++j) {
+			matrix[i][j] = 0;
+		}
+	}
+
+	// Правая нижняя четверть (строки [halfN, N-1], столбцы [halfN, N-1])
+	for (int i = halfN; i < N; ++i) {
+		for (int j = halfN; j < N; ++j) {
+			matrix[i][j] = 10;
+		}
+	}
+
+	// Поменять местами верхние четверти: левую верхнюю с правой верхней
+	// Левая верхняя: строки [0, halfN-1], столбцы [0, halfN-1]
+	// Правая верхняя: строки [0, halfN-1], столбцы [halfN, N-1]
+	for (int i = 0; i < halfN; ++i) {
+		for (int j = 0; j < halfN; ++j) {
+			std::swap(matrix[i][j], matrix[i][j + halfN]);
+		}
+	}
+}
+
+void printMatrix(const std::vector<std::vector<int>> &matrix) {
+	if (matrix.empty()) {
+		std::cout << "Матрица пуста." << std::endl;
+		return;
+	}
+
+	for (const auto &row : matrix) {
+		for (int val : row) {
+			std::cout << val << "\t";
+		}
+		std::cout << std::endl;
+	}
+}
+
+void runMatrixReplace() {
+	int N;
+	std::cout << "Введите порядок квадратной матрицы (N - четное число): ";
+
+	while (!(std::cin >> N) || N <= 0 || N % 2 != 0) {
+		std::cout << "Некорректный ввод. Пожалуйста, введите положительное четное число для N: ";
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	}
+
+	auto matrix_opt = generateRandomMatrix(N);
+
+	if (matrix_opt) {
+		std::vector<std::vector<int>> matrix = *matrix_opt;
+
+		std::cout << "\nИсходная матрица:" << std::endl;
+		printMatrix(matrix);
+
+		transformMatrix(matrix);
+
+		std::cout << "\nМатрица после преобразований:" << std::endl;
+		printMatrix(matrix);
+	} else {
+		std::cerr << "Не удалось сгенерировать матрицу. Программа завершена." << std::endl;
+		return;
+	}
+}
+
+
+
+// Содержимое файла src/modules/maximise_bananas.cpp
+
+#include "../../include/modules/maximise_bananas.hpp"
+#include "../../include/input.hpp"
+
+#include <cstdint>
+#include <iostream>
+#include <map>
+
+static inline int countSetBits(std::uint64_t n) {
+	int count = 0;
+	while (n > 0) {
+		n &= (n - 1); // Снимаем младший установленный бит
+		count++;
+	}
+	return count;
+}
+
+std::pair<std::uint64_t, std::uint64_t> maximiseBananas(std::uint64_t n) {
+	std::uint64_t best_a = 0;
+	std::uint64_t best_b = n;
+	int max_bananas = countSetBits(0) + countSetBits(n);
+	std::uint64_t max_diff = n; // Для случая a=0, b=n
+
+	// Если N == 0, то пара (0, 0)
+	if (n == 0) {
+		return {0, 0};
+	}
+
+	// Итерируемся от 0 до N/2, так как пары (a, b) и (b, a) имеют одинаковое
+	// количество бананов. Выбираем ту, у которой разность больше, что
+	// соответствует случаю, когда b > a.
+	// Если N четное, N/2 будет целочисленно делиться.
+	// Если N нечетное, N/2 округлится вниз, и мы не будем рассматривать a > N/2.
+	// Например, для N=5, мы проверим a=0, 1, 2.
+	for (std::uint64_t a = 0; a <= n / 2; ++a) {
+		std::uint64_t b = n - a;
+		int current_bananas = countSetBits(a) + countSetBits(b);
+		std::uint64_t current_diff = b - a;
+
+		if (current_bananas > max_bananas) {
+			max_bananas = current_bananas;
+			best_a = a;
+			best_b = b;
+			max_diff = current_diff;
+		} else if (current_bananas == max_bananas) {
+			// Если количество бананов одинаково, выбираем ту пару,
+			// у которой разность чисел наибольшая.
+			if (current_diff > max_diff) {
+				best_a = a;
+				best_b = b;
+				max_diff = current_diff;
+			}
+		}
+	}
+
+	return {best_a, best_b};
+}
+
+void runMaximiseBananas() {
+	std::pair<std::uint64_t, std::uint64_t> bananas =
+		maximiseBananas(getValue<std::uint64_t>("Введите число N"));
+	std::cout << bananas.first << " " << bananas.second << std::endl;
+}
+
+

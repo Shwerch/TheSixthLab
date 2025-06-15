@@ -13,11 +13,8 @@ std::optional<std::vector<std::vector<int>>> generateRandomMatrix(int N) {
 
 	std::vector<std::vector<int>> matrix(N, std::vector<int>(N));
 
-	// Используем std::mt19937 с std::random_device для лучшей случайности
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	// std::mt19937 gen(std::chrono::high_resolution_clock::now().time_since_epoch().count()); //
-	// Альтернатива, если random_device недоступен или не устраивает
 
 	std::uniform_int_distribution<> distrib(10, 30);
 
@@ -85,11 +82,9 @@ void runMatrixReplace() {
 	int N;
 	std::cout << "Введите порядок квадратной матрицы (N - четное число): ";
 
-	// Валидация пользовательского ввода
 	while (!(std::cin >> N) || N <= 0 || N % 2 != 0) {
 		std::cout << "Некорректный ввод. Пожалуйста, введите положительное четное число для N: ";
-		std::cin.clear(); // Очистить флаги ошибок ввода
-		// Игнорировать оставшуюся часть некорректной строки ввода
+		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
 

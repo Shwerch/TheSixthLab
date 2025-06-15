@@ -8,36 +8,27 @@
 #include <thread>
 #include <vector>
 
-// Используем структуру вместо класса
 struct GameOfLife {
 	int width;
 	int height;
 	std::vector<std::vector<bool>> grid;
 	std::vector<std::vector<bool>> nextGrid;
 
-	// Конструктор (в структуре работает аналогично классу)
 	GameOfLife(int width, int height);
 
-	// Инициализация сетки случайными значениями
 	void initializeRandomly(double density = 0.3);
 
-	// Инициализация сетки по шаблону (например, для ружья)
 	void initializePattern(const std::vector<std::string> &pattern, int startX, int startY);
 
-	// Вычисление следующего поколения
 	void nextGeneration();
 
-	// Отрисовка текущего состояния сетки
 	void draw() const;
 
-	// Запуск симуляции
 	void run(int generations, std::chrono::milliseconds delay);
 
-	// Очистка консоли
 	void clearConsole() const;
 
   private:
-	// Приватный метод для структуры
 	int countLiveNeighbors(int x, int y) const;
 };
 
@@ -111,7 +102,7 @@ void GameOfLife::nextGeneration() {
 			}
 		}
 	}
-	grid = nextGrid; // Обновляем сетку
+	grid = nextGrid;
 }
 
 void GameOfLife::draw() const {
@@ -142,10 +133,8 @@ void GameOfLife::run(int generations, std::chrono::milliseconds delay) {
 }
 
 void runGameOfLife() {
-	// Демонстрация ружья Госпера
 	std::cout << "Демонстрация ружья Госпера:\n";
-	// Создание экземпляра структуры GameOfLife
-	GameOfLife gliderGunGame(80, 40); // Увеличьте размер для ружья
+	GameOfLife gliderGunGame(80, 40);
 
 	// Шаблон ружья Госпера
 	std::vector<std::string> gosperGliderGun = {
