@@ -8,6 +8,9 @@ enum class MainMenu {
 	MATRIX_REPLACE,
 	GAME_OF_LIFE,
 	MAXIMISE_BANANAS,
+	GAUSS_SOLVER,
+	ITERATIVE_SOLVER,
+	AES,
 	EXIT,
 };
 
@@ -23,6 +26,12 @@ constexpr std::string_view getElementSescription(MainMenu element) {
 		return "Игра 'Жизнь'";
 	case MainMenu::MAXIMISE_BANANAS:
 		return "Игра с бананами";
+	case MainMenu::GAUSS_SOLVER:
+		return "Решение системы уравнений методом Гаусса";
+	case MainMenu::ITERATIVE_SOLVER:
+		return "Решение системы уравнений приближенным методом";
+	case MainMenu::AES:
+		return "Алгоритм шифрования AES128 CBC";
 	case MainMenu::EXIT:
 		return "Выход из программы";
 	default:
